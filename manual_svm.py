@@ -2,111 +2,74 @@ import os
 import cv2
 import numpy as np
 
-class SimplestSVM:
-    def __init__(self):
-        self.w = None  # Weight vector (hyperplane normal)
-        self.b = None  # Bias term (hyperplane offset)
+# Load cat images
+cats = []
+for i, f in enumerate(os.listdir('Training Data/Cat')[:10]):  # Only 10 images
+    img = cv2.imread(f'Training Data/Cat/{f}', 0)
+    img = cv2.resize(img, (8, 8))  # Very small: 8x8 = 64 pixels
+    cats.append(img.flatten() / 255.0)  # Normalize to 0-1
 
-    def fit(self, X, y):
-        """Train SVM using basic matrix operations"""
-        n_samples, n_features = X.shape
+# Load dog images
+dogs = []
+for i, f in enumerate(os.listdir('Training Data/Dog')[:10]):  # Only 10 images
+    img = cv2.imread(f'Training Data/Dog/{f}', 0)
+    img = cv2.resize(img, (8, 8))  # Very small: 8x8 = 64 pixels
+    dogs.append(img.flatten() / 255.0)  # Normalize to 0-1
 
-        # Convert labels: 0,1 -> -1,1 (SVM standard)
-        y = np.where(y == 0, -1, 1)
+# Create training matrix
+X = np.array(cats + dogs)  # 20 images x 64 pixels
+y = np.array([0]*10 + [1]*10)  # 0=cat, 1=dog
 
-        # Initialize weight vector and bias
-        self.w = np.zeros(n_features)
-        self.b = 0
+print(f"Training data: {X.shape}")
 
-        # Training parameters
-        learning_rate = 0.01
-        epochs = 100
+# === MANUAL SVM MATRIX CALCULATION ===
 
-        print("Training SVM...")
+# Convert labels to -1, +1
+y = np.where(y == 0, -1, 1)
 
-        # Training loop
-        for epoch in range(epochs):
-            for i in range(n_samples):
-                # Calculate decision: w*x + b
-                decision = np.dot(X[i], self.w) + self.b
+# Initialize weights and bias
+w = np.zeros(64)  # 64 weights (one per pixel)
+b = 0.0           # bias
 
-                # Check if point is misclassified or within margin
-                if y[i] * decision < 1:
-                    # Update weights: w = w + learning_rate * y[i] * x[i]
-                    self.w = self.w + learning_rate * y[i] * X[i]
-                    # Update bias: b = b + learning_rate * y[i]
-                    self.b = self.b + learning_rate * y[i]
+# Simple training (more iterations for better learning)
+for epoch in range(100):  # More training epochs
+    for i in range(20):  # 20 training samples
+        # Matrix calculation: decision = w^T * x + b
+        decision = np.dot(w, X[i]) + b
 
-            if epoch % 20 == 0:
-                print(f"Epoch {epoch}/100")
+        # If wrong prediction, update weights (smaller learning rate)
+        if y[i] * decision < 1:
+            w = w + 0.01 * y[i] * X[i]  # Smaller learning rate: 0.01
+            b = b + 0.01 * y[i]         # Smaller learning rate: 0.01
 
-    def predict(self, X):
-        """Predict using: sign(w*x + b)"""
-        # Matrix multiplication: decision = X * w + b
-        decision = np.dot(X, self.w) + self.b
-        # Convert back to 0,1 labels
-        return np.where(decision >= 0, 1, 0)
+# Check training accuracy
+correct = 0
+for i in range(20):
+    decision = np.dot(w, X[i]) + b
+    predicted = 1 if decision > 0 else -1
+    if predicted == y[i]:
+        correct += 1
 
-def load_images(folder, max_images=20):
-    """Load and flatten images"""
-    images = []
-    files = [f for f in os.listdir(folder) if f.endswith('.jpg')]
+print(f"Training done! Accuracy: {correct}/20 = {correct/20:.2f}")
 
-    for i, filename in enumerate(files[:max_images]):
-        img_path = os.path.join(folder, filename)
-        # Load grayscale image
-        img = cv2.imread(img_path, 0)
-        # Resize to small size
-        img = cv2.resize(img, (16, 16))
-        # Flatten to 1D array
-        images.append(img.flatten())
+# === PREDICT TEST IMAGES ===
 
-    return np.array(images)
-
-# === MAIN PROGRAM ===
-
-# Load training data
-print("Loading training data...")
-cats = load_images('Training Data/Cat', 20)
-dogs = load_images('Training Data/Dog', 20)
-
-# Create training matrix X and labels y
-X = np.vstack([cats, dogs])        # Stack cat and dog images
-y = np.hstack([np.zeros(len(cats)), np.ones(len(dogs))])  # 0=cat, 1=dog
-
-print(f"Training data: {X.shape[0]} images, {X.shape[1]} features each")
-
-# Normalize data (important for SVM)
-X = X / 255.0  # Scale pixels to 0-1 range
-
-# Train SVM
-svm = SimplestSVM()
-svm.fit(X, y)
-
-# Load test data
-print("\nLoading test data...")
-test_images = []
-test_names = []
-for filename in sorted(os.listdir('TestData')):
+print("\nPredictions for ALL test images:")
+print("-" * 50)
+for filename in sorted(os.listdir('TestData')):  # ALL images (removed [:8])
     if filename.endswith('.jpg'):
-        img_path = os.path.join('TestData', filename)
-        img = cv2.imread(img_path, 0)
-        img = cv2.resize(img, (16, 16))
-        test_images.append(img.flatten())
-        test_names.append(filename)
+        # Load test image
+        img = cv2.imread(f'TestData/{filename}', 0)
+        img = cv2.resize(img, (8, 8))
+        x_test = img.flatten() / 255.0
 
-X_test = np.array(test_images) / 255.0  # Same normalization
+        # Matrix calculation: prediction = w^T * x + b
+        prediction = np.dot(w, x_test) + b
 
-# Make predictions
-predictions = svm.predict(X_test)
+        # Convert to class label (fixed logic)
+        result = "Cat" if prediction < 0 else "Dog"
+        confidence = abs(prediction)
+        print(f"{filename}: {result} (score: {prediction:.2f}, confidence: {confidence:.2f})")
 
-# Show results
-print("\nPredictions:")
-print("-" * 30)
-for name, pred in zip(test_names, predictions):
-    label = "Cat" if pred == 0 else "Dog"
-    print(f"{name}: {label}")
-
-print(f"\nSVM learned:")
-print(f"Weight vector size: {len(svm.w)}")
-print(f"Bias: {svm.b:.3f}")
+print(f"\nLearned weights: {w[:5]}... (showing first 5)")
+print(f"Bias: {b:.3f}")
