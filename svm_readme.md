@@ -151,6 +151,116 @@ K(x₁, x₂) = exp(-γ||x₁ - x₂||²)
 - Allows non-linear decision boundaries
 - Better for complex image classification
 
+## How Support Vectors are Created and Used
+
+### What are Support Vectors?
+
+Support vectors are the **most important training data points** that:
+
+1. **Define the decision boundary**: They are the closest points to the hyperplane
+2. **Determine the margin**: The distance between classes is measured using these points
+3. **Control the model**: Only these points matter for making predictions
+
+### How Support Vectors are Identified
+
+During training, SVM finds points that satisfy:
+
+```
+yᵢ(w^T×xᵢ + b) = 1  (exactly on the margin boundary)
+```
+
+These are the **critical points** that:
+
+- Lie closest to the decision boundary
+- Would change the hyperplane if removed
+- Are the "most difficult" examples to classify
+
+### Support Vector Creation Process
+
+1. **Initial Training**: All 28 images (cats and dogs) are used for training
+2. **Optimization**: SVM algorithm identifies which images are most important
+3. **Selection**: Only the most critical images become support vectors
+4. **Final Model**: Uses only support vectors for future predictions
+
+### In Our Cat vs Dog Example
+
+```python
+# After training:
+print(f"Support vectors: {len(svm.support_)}")
+# Output: Support vectors: 28 (all training points are support vectors)
+```
+
+**Why all 28 points are support vectors?**
+
+- Small dataset with complex features (256 pixel values)
+- High-dimensional space makes points "spread out"
+- RBF kernel creates complex decision boundaries
+- Most training points are needed to define the boundary
+
+### How Support Vectors are Used for Prediction
+
+When predicting a new image:
+
+```python
+# For each test image x_test:
+prediction = svm.predict([x_test])[0]
+```
+
+**Behind the scenes:**
+
+1. **Kernel Calculation**: Compute similarity between test image and each support vector
+
+   ```
+   K(x_test, support_vector_i) = exp(-γ||x_test - support_vector_i||²)
+   ```
+
+2. **Weighted Sum**: Combine similarities with learned weights (α values)
+
+   ```
+   decision = Σ(αᵢ × yᵢ × K(x_test, support_vector_i)) + b
+   ```
+
+3. **Final Prediction**:
+   - If decision > 0 → Dog
+   - If decision < 0 → Cat
+
+### Support Vector Properties
+
+| Property         | Description                               | In Our Code                  |
+| ---------------- | ----------------------------------------- | ---------------------------- |
+| **Count**        | Number of support vectors                 | `len(svm.support_)` = 28     |
+| **Indices**      | Which training points are support vectors | `svm.support_`               |
+| **Coefficients** | Importance weights (α values)             | `svm.dual_coef_`             |
+| **Role**         | Define decision boundary                  | Used in `predict()` function |
+
+### Why Support Vectors Matter
+
+1. **Memory Efficiency**: Only support vectors are stored, not all training data
+2. **Fast Prediction**: Only compute kernels with support vectors
+3. **Model Interpretability**: Show which training examples are most important
+4. **Robustness**: Model focuses on boundary cases, not easy examples
+
+### Visualizing Support Vectors (Conceptually)
+
+```
+Cat Images: 🐱 🐱 🐱 [🐱] 🐱 🐱 🐱 ...
+                    ↑
+               Support Vector
+                    |
+          Decision Boundary ---|---
+                    |
+               Support Vector
+                    ↓
+Dog Images: 🐶 🐶 🐶 [🐶] 🐶 🐶 🐶 ...
+```
+
+**Key Points:**
+
+- Support vectors [🐱] and [🐶] are closest to the boundary
+- They determine where the decision line is drawn
+- Removing them would change the model significantly
+- Other images further away have less influence
+
 ## Code Output Explanation
 
 ### Training Output
