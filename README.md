@@ -21,7 +21,7 @@ Six simplified machine learning algorithms with clean implementations for educat
 - Test images (0.jpg to 9.jpg)
 - Sample matrices (for PCA and SVD)
 
-## How to Run
+## How to Run-
 
 **Setup with Virtual Environment:**
 
