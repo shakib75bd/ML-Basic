@@ -6,20 +6,14 @@ Six simplified machine learning algorithms with clean implementations for educat
 
 **6 Machine Learning Algorithms:**
 
-| Algorithm     | Type                     | Accuracy | Description                            |
-| ------------- | ------------------------ | -------- | -------------------------------------- |
-| SVM           | Classification           | 100%     | Support Vector Machine with RBF kernel |
-| Bayesian      | Classification           | 92.9%    | Naive Bayes with probability estimates |
-| LDA           | Classification           | 79%      | Linear Discriminant Analysis           |
-| Least Squares | Classification           | 75%      | Linear regression for classification   |
-| PCA           | Dimensionality Reduction | N/A      | Principal Component Analysis           |
-| SVD           | Matrix Factorization     | N/A      | Singular Value Decomposition           |
-
-**Documentation:**
-
-- Individual README files for each algorithm
-- Mathematical explanations and code walkthroughs
-- Output interpretation guides
+| Algorithm     | Type                     | Description                            |
+| ------------- | ------------------------ | -------------------------------------- |
+| SVM           | Classification           | Support Vector Machine with RBF kernel |
+| Bayesian      | Classification           | Naive Bayes with probability estimates |
+| LDA           | Classification           | Linear Discriminant Analysis           |
+| Least Squares | Classification           | Linear regression for classification   |
+| PCA           | Dimensionality Reduction | Principal Component Analysis           |
+| SVD           | Matrix Factorization     | Singular Value Decomposition           |
 
 **Data:**
 
@@ -29,11 +23,22 @@ Six simplified machine learning algorithms with clean implementations for educat
 
 ## How to Run
 
-**Setup:**
+**Setup with Virtual Environment:**
 
 ```bash
 git clone <repository-url>
 cd MLLab
+
+# Create virtual environment
+python -m venv ml_env
+
+# Activate virtual environment
+# On macOS/Linux:
+source ml_env/bin/activate
+# On Windows:
+ml_env\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -51,49 +56,6 @@ python svd.py        # Singular Value Decomposition
 **Requirements:**
 
 - Python 3.7+
-- Dependencies: numpy, opencv-python, scikit-learn, scipy
+- Dependencies: numpy, opencv-python, scikit-learn
 
 Each script runs independently and produces immediate results.
-
-## 🔬 Technical Specifications
-
-### **Data Processing**
-
-- **Image Format**: JPEG, PNG, common formats
-- **Preprocessing**: Grayscale conversion, resizing, normalization
-- **Feature Extraction**: Pixel intensities as feature vectors
-- **Data Split**: Training (cat/dog folders) vs. Testing (numbered files)
-
-### **Algorithm Details**
-
-- **SVM**: RBF kernel, probability estimates enabled
-- **Bayesian**: Gaussian naive Bayes with Laplace smoothing
-- **LDA**: Linear discriminant with covariance regularization
-- **Least Squares**: Normal equation with sigmoid output
-- **PCA**: Standardized features, 2-component projection
-- **SVD**: Truncated decomposition, variance analysis
-
-### **Performance Metrics**
-
-- **Training Accuracy**: Percentage of correct training predictions
-- **Confidence Scores**: Probability estimates for each prediction
-- **Interpretability**: Feature importance and model parameters
-- **Computational Efficiency**: Training and prediction time
-
-## 🤝 Contributing
-
-This project welcomes contributions! Areas for improvement:
-
-- Additional algorithms (Random Forest, Neural Networks)
-- More comprehensive datasets
-- Performance optimization
-- Extended documentation
-- Visualization enhancements
-
-## 📄 License
-
-This project is designed for educational use. Feel free to use, modify, and distribute for learning purposes.
-
----
-
-**Start your machine learning journey with clear, simple, and effective implementations that actually work!**
