@@ -27,7 +27,7 @@ Six simplified machine learning algorithms with clean implementations for educat
 
 ```bash
 git clone <repository-url>
-cd MLLab
+cd ML-Basic
 
 # Create virtual environment
 python -m venv ml_env
