@@ -19,11 +19,9 @@ AtA = A.T@A
 #Step 2: eigenvalues and eigenvectors of AtA
 eigenVal_AtA, V = np.linalg.eigh(AtA)
 
-#Sorting eigenvalues in descending order
-idx = np.argsort(eigenVal_AtA)[::-1]
-eigenVal_AtA = eigenVal_AtA[idx]
-V= V[:, idx]
-
+#Sorting eigenvalues in descending order (simpler syntax)
+idx = eigenVal_AtA.argsort()[::-1]
+eigenVal_AtA, V = eigenVal_AtA[idx], V[:, idx]
 
 #Step 3: Calculate Singular values
 sigma = np.sqrt(np.maximum(eigenVal_AtA,0))
