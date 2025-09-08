@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.linalg import svd
 
 # Example matrix: 4 samples x 3 features
 A = np.array([
@@ -9,13 +8,35 @@ A = np.array([
     [2.0, 4.0, 6.0],
 ])
 
-print("SVD - Singular Value Decomposition")
+print("SVD - Singular Value Decomposition (Manual Calculation)")
 print("Original matrix shape:", A.shape)
 print("Original matrix:")
 print(A)
 
-# Perform SVD: A = U × Σ × V^T
-U, sigma, Vt = svd(A, full_matrices=False)
+# Manual SVD calculation using eigendecomposition
+# Step 1: Compute A^T A for V and eigenvalues
+AtA = A.T @ A
+
+# Step 2: Find eigenvalues and eigenvectors of A^T A
+eigenvals_AtA, V = np.linalg.eigh(AtA)
+
+# Sort eigenvalues in descending order
+idx = np.argsort(eigenvals_AtA)[::-1]
+eigenvals_AtA = eigenvals_AtA[idx]
+V = V[:, idx]
+
+# Step 3: Calculate singular values
+sigma = np.sqrt(np.maximum(eigenvals_AtA, 0))  # Avoid negative due to numerical errors
+
+# Step 4: Compute U matrix
+# For non-zero singular values, U[:, i] = (1/sigma[i]) * A @ V[:, i]
+U = np.zeros((A.shape[0], len(sigma)))
+for i in range(len(sigma)):
+    if sigma[i] > 1e-10:  # Only for non-zero singular values
+        U[:, i] = (A @ V[:, i]) / sigma[i]
+
+# Create V^T
+Vt = V.T
 
 print("\nSVD Results:")
 print("U shape:", U.shape)

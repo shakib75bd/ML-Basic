@@ -1,59 +1,31 @@
-import os
-import cv2
 import numpy as np
 
-# Load training data
-cats, dogs = [], []
-for f in os.listdir('Training Data/Cat')[:10]:
-    if f.endswith('.jpg'):
-        img = cv2.imread(f'Training Data/Cat/{f}', 0)
-        if img is not None:
-            cats.append(cv2.resize(img, (8, 8)).flatten() / 255.0)
+# Sample data: Hours studied vs Test score
+X = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+y = np.array([2, 4, 6, 8, 10, 12, 14, 16])
 
-for f in os.listdir('Training Data/Dog')[:10]:
-    if f.endswith('.jpg'):
-        img = cv2.imread(f'Training Data/Dog/{f}', 0)
-        if img is not None:
-            dogs.append(cv2.resize(img, (8, 8)).flatten() / 255.0)
+print("Least Squares Linear Regression")
+print("Data:", list(zip(X, y)))
 
-# Create training matrix and labels
-X_train = np.array(cats + dogs)  # Training features
-y_train = np.array([0]*len(cats) + [1]*len(dogs))  # 0=cat, 1=dog
+# Calculate slope (m) and intercept (b)
+n = len(X)
+sum_x, sum_y, sum_xy, sum_x2 = np.sum(X), np.sum(y), np.sum(X * y), np.sum(X * X)
+m = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x * sum_x)
+b = (sum_y - m * sum_x) / n
 
-# Add bias term (column of ones)
-X_train_bias = np.column_stack([np.ones(len(X_train)), X_train])
+print(f"Equation: y = {m:.1f}x + {b:.1f}")
 
-# Load test image
-img = cv2.imread('TestData/0.jpg', 0)
-test_img = cv2.resize(img, (8, 8)).flatten() / 255.0
-x_test_bias = np.concatenate([[1], test_img])  # Add bias term
+# Predictions and accuracy
+y_pred = m * X + b
+mse = np.mean((y - y_pred) ** 2)
+r_squared = 1 - np.sum((y - y_pred) ** 2) / np.sum((y - np.mean(y)) ** 2)
 
-# Least Squares Solution
-# Solve: X * w = y using Normal Equation: w = (X^T * X)^(-1) * X^T * y
-XTX = X_train_bias.T @ X_train_bias
-XTy = X_train_bias.T @ y_train
-weights = np.linalg.solve(XTX, XTy)
+print(f"MSE: {mse:.6f}, R²: {r_squared:.6f} ({r_squared*100:.1f}% accuracy)")
 
-# Make prediction
-prediction_score = x_test_bias @ weights
-prediction_prob = 1 / (1 + np.exp(-prediction_score))  # Sigmoid for probability
-
-# Calculate training accuracy
-train_predictions = X_train_bias @ weights
-train_probs = 1 / (1 + np.exp(-train_predictions))
-train_classes = (train_probs > 0.5).astype(int)
-training_accuracy = np.mean(train_classes == y_train)
-
-print("Least Squares Classification for 0.jpg:")
-print(f"Training accuracy: {training_accuracy:.3f}")
-print(f"Linear score: {prediction_score:.3f}")
-print(f"Probability (sigmoid): {prediction_prob:.3f}")
-print(f"Cat probability: {1 - prediction_prob:.3f}")
-print(f"Dog probability: {prediction_prob:.3f}")
-print(f"Prediction: {'Cat' if prediction_prob < 0.5 else 'Dog'}")
-print()
-print("Least Squares Method:")
-print("- Finds linear weights w that minimize ||Xw - y||²")
-print("- Uses Normal Equation: w = (X^T X)^(-1) X^T y")
-print("- Linear decision boundary: w₀ + w₁x₁ + w₂x₂ + ... = 0.5")
-print("- Sigmoid converts linear score to probability")
+# Test prediction and sample results
+test_pred = m * 5.5 + b
+print(f"Prediction for 5.5 hours: {test_pred:.1f} points")
+print("Sample predictions:")
+for i in [0, 3, 7]:
+    print(f"  {X[i]} hours → actual: {y[i]}, predicted: {y_pred[i]:.1f}")
+print(f"Rate: {m:.1f} points per hour")
