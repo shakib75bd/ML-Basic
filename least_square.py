@@ -1,31 +1,33 @@
 import numpy as np
 
-# Sample data: Hours studied vs Test score
-X = np.array([1, 2, 3, 4, 5, 6, 7, 8])
-y = np.array([2, 4, 6, 8, 10, 12, 14, 16])
+#Sample data (weight vs height)
+x = np.array([30,35,40,45,50,55,60,65])
+y = np.array([150,155,160,165,170,175,180,185])
 
-print("Least Squares Linear Regression")
-print("Data:", list(zip(X, y)))
+#Data showing
+print("Data: ",list(zip(x,y)))
 
-# Calculate slope (m) and intercept (b)
-n = len(X)
-sum_x, sum_y, sum_xy, sum_x2 = np.sum(X), np.sum(y), np.sum(X * y), np.sum(X * X)
-m = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - sum_x * sum_x)
-b = (sum_y - m * sum_x) / n
+#calculating slope(m) and intercept(b)
+#for mx + b
+n = len(x)
 
-print(f"Equation: y = {m:.1f}x + {b:.1f}")
+sum_x = np.sum(x)
+sum_y = np.sum(y)
+sum_xy = np.sum(x*y)
+sum_xx = np.sum(x*x)
 
-# Predictions and accuracy
-y_pred = m * X + b
-mse = np.mean((y - y_pred) ** 2)
-r_squared = 1 - np.sum((y - y_pred) ** 2) / np.sum((y - np.mean(y)) ** 2)
+#m and b using least square
+m=(n*sum_xy - sum_x*sum_y) / (n*sum_xx - sum_x*sum_x)
+b=(sum_y - m*sum_x)/n
 
-print(f"MSE: {mse:.6f}, R²: {r_squared:.6f} ({r_squared*100:.1f}% accuracy)")
+#printing equation
+print(f"Equation: {m:.1f}x+{b:.1f}")
 
-# Test prediction and sample results
-test_pred = m * 5.5 + b
-print(f"Prediction for 5.5 hours: {test_pred:.1f} points")
-print("Sample predictions:")
-for i in [0, 3, 7]:
-    print(f"  {X[i]} hours → actual: {y[i]}, predicted: {y_pred[i]:.1f}")
-print(f"Rate: {m:.1f} points per hour")
+#LEAST SQUARE
+y_prediction = m*x + b
+
+#For input x:
+x_input=39
+y_output= m*x_input + b
+
+print(f"If x={x_input}, then y={y_output}")
